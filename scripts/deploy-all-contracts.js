@@ -91,9 +91,11 @@ const createContract = async (buildFilePath, contractAddress) => {
     return contract;
 }
 
-
-
-
+const copyBuildFile = (contractName, srcFilePath) => {
+    const dstPath = '../abi/' + contractName + '.json';
+    fs.copyFileSync(srcFilePath, dstPath);
+    console.log('Copy \'' + contractName + '.json\' file to \'' + dstPath + '\'');
+}
 
 
 
@@ -137,6 +139,9 @@ const main = async () => {
         var [registryContract, receipt] = await deployContract(registryDeployInfo.buildFilePath, registryDeployInfo.args, admin);
         console.log('Deloying \'Registry\' Contract ... Done. ' + registryContract.options.address);
 
+        // copy buildfile to 'abi' directory
+        copyBuildFile(registryDeployInfo.name, registryDeployInfo.buildFilePath);
+
         // rayon contracts (proxy + logic)
         for (i = 0; i < contractDeployInfos.length; i++) {
             // console.log('name: ' + contractDeployInfos[i].name + ', buildFilePath: ' + contractDeployInfos[i].buildFilePath);
@@ -160,6 +165,9 @@ const main = async () => {
 
             // Registry.upgrade()
             receipt = await registryContract.methods.upgrade(logicContract.options.address).send({ from: admin });
+
+            // copy buildfile to 'abi' directory
+            copyBuildFile(contractDeployInfos[i].name, contractDeployInfos[i].buildFilePath);
         }
 
         // print contract info
