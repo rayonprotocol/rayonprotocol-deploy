@@ -10,8 +10,7 @@ const importFromKeystore = (keystoreFilePath) => {
     const keystoreFilePathExists = fs.existsSync(keystoreFilePath); // check if keystore file exists
     console.log('Keystore file \'' + keystoreFilePath + '\'');
     if (keystoreFilePathExists) {
-        // var keystorePassword = readlineSync.question(' password: ', { hideEchoBack: true });
-        var keystorePassword = 'scion1234';
+        var keystorePassword = readlineSync.question(' password: ', { hideEchoBack: true });
         console.log('');
 
         var keystore = fs.readFileSync(keystoreFilePath).toString();

@@ -10,8 +10,7 @@ const importFromKeystore = (keystoreFilePath) => {
     const keystoreFilePathExists = fs.existsSync(keystoreFilePath); // check if keystore file exists
     console.log('Keystore file \'' + keystoreFilePath + '\'');
     if (keystoreFilePathExists) {
-        // var keystorePassword = readlineSync.question(' password: ', { hideEchoBack: true });
-        var keystorePassword = 'scion1234';
+        var keystorePassword = readlineSync.question(' password: ', { hideEchoBack: true });
         console.log('');
 
         var keystore = fs.readFileSync(keystoreFilePath).toString();
@@ -80,16 +79,16 @@ const deployProxy = async (contractName, sender) => {
     return await deployContract(proxyDeployInfo.buildFilePath, [contractName], sender);
 }
 
-// const createContract = async (buildFilePath, contractAddress) => {
-//     const contractBuildJson = require(buildFilePath);
+const createContract = async (buildFilePath, contractAddress) => {
+    const contractBuildJson = require(buildFilePath);
 
-//     const contract = new web3_eth.Contract(contractBuildJson.abi);
-//     contract.options.gasPrice = gasPrice;
-//     contract.options.gas = gasLimit;
-//     contract.options.address = contractAddress;
+    const contract = new web3_eth.Contract(contractBuildJson.abi);
+    contract.options.gasPrice = gasPrice;
+    contract.options.gas = gasLimit;
+    contract.options.address = contractAddress;
 
-//     return contract;
-// }
+    return contract;
+}
 
 const copyBuildFile = (contractName, srcFilePath) => {
     const abiDir = '../abi';
@@ -101,6 +100,24 @@ const copyBuildFile = (contractName, srcFilePath) => {
     console.log('Copy \'' + contractName + '.json\' file to \'' + dstPath + '\'');
 }
 
+const printContractInfoFromRegistry = async (registryContract, admin) => {
+    // print contract info
+    console.log('Registry Contract: ' + registryContract.options.address);
+    const contractCount = await registryContract.methods.size().call({ from: admin });
+    console.log('Contracts: ' + contractCount);
+    console.log(' | ' + 'Name' + '\t\t\t' + 'ProxyContract' + '\t\t\t\t\t' + 'LogicContract' + '\t\t\t\t\t' + 'Version' + '\t' + 'BlockNumber' + '\t' + 'UpdatedTime');
+    console.log(' -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
+    for (i = 0; i < contractCount; i++) {
+        var contractInfo = await registryContract.methods.getRegistryInfoByIndex(i).call({ from: admin });
+        const contractName = contractInfo[0];
+        const proxyContractAddress = contractInfo[1];
+        const interfaceContractAddress = contractInfo[2];
+        const contractVersion = contractInfo[3];
+        const contractBlockNumber = contractInfo[4];
+        const contractUpdatedTime = contractInfo[5];
+        console.log(' | ' + contractName + '\t' + (contractName.length < 5 ? '\t' : '') + (contractName.length < 13 ? '\t' : '') + proxyContractAddress + '\t' + interfaceContractAddress + '\t' + contractVersion + '\t' + contractBlockNumber + '\t\t' + new Date(contractUpdatedTime * 1000).toISOString());
+    }
+}
 
 
 // Envirionments
@@ -174,25 +191,10 @@ const main = async () => {
             copyBuildFile(contractDeployInfos[i].name, contractDeployInfos[i].buildFilePath);
         }
 
-        // print contract info
         console.log('');
         console.log('Result Information');
         console.log('');
-        console.log('Registry Contract: ' + registryContract.options.address);
-        const contractCount = await registryContract.methods.size().call({ from: admin });
-        console.log('Contracts: ' + contractCount);
-        console.log(' | ' + 'Name' + '\t\t\t' + 'ProxyContract' + '\t\t\t\t\t' + 'LogicContract' + '\t\t\t\t\t' + 'Version' + '\t' + 'BlockNumber' + '\t' + 'UpdatedTime');
-        console.log(' -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
-        for (i = 0; i < contractCount; i++) {
-            var contractInfo = await registryContract.methods.getRegistryInfoByIndex(i).call({ from: admin });
-            const contractName = contractInfo[0];
-            const proxyContractAddress = contractInfo[1];
-            const interfaceContractAddress = contractInfo[2];
-            const contractVersion = contractInfo[3];
-            const contractBlockNumber = contractInfo[4];
-            const contractUpdatedTime = contractInfo[5];
-            console.log(' | ' + contractName + '\t' + (contractName.length < 5 ? '\t' : '') + (contractName.length < 13 ? '\t' : '') + proxyContractAddress + '\t' + interfaceContractAddress + '\t' + contractVersion + '\t' + contractBlockNumber + '\t\t' + new Date(contractUpdatedTime * 1000).toISOString());
-        }
+        await printContractInfoFromRegistry(registryContract, admin);
     } catch (exception) {
         console.log(exception);
     }
