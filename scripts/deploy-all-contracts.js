@@ -80,16 +80,16 @@ const deployProxy = async (contractName, sender) => {
     return await deployContract(proxyDeployInfo.buildFilePath, [contractName], sender);
 }
 
-const createContract = async (buildFilePath, contractAddress) => {
-    const contractBuildJson = require(buildFilePath);
+// const createContract = async (buildFilePath, contractAddress) => {
+//     const contractBuildJson = require(buildFilePath);
 
-    const contract = new web3_eth.Contract(contractBuildJson.abi);
-    contract.options.gasPrice = gasPrice;
-    contract.options.gas = gasLimit;
-    contract.options.address = contractAddress;
+//     const contract = new web3_eth.Contract(contractBuildJson.abi);
+//     contract.options.gasPrice = gasPrice;
+//     contract.options.gas = gasLimit;
+//     contract.options.address = contractAddress;
 
-    return contract;
-}
+//     return contract;
+// }
 
 const copyBuildFile = (contractName, srcFilePath) => {
     const abiDir = '../abi';
@@ -138,7 +138,7 @@ const main = async () => {
     try {
         const admin = web3_eth.accounts.wallet[0].address;
 
-        // deploy registry contract
+        // deploy 'Registry' contract
         console.log('Deloying \'Registry\' Contract ...');
         var [registryContract, receipt] = await deployContract(registryDeployInfo.buildFilePath, registryDeployInfo.args, admin);
         console.log('Deloying \'Registry\' Contract ... Done. ' + registryContract.options.address);
@@ -153,11 +153,11 @@ const main = async () => {
             // deploy proxy contract
             console.log('Deloying \'RayonProxy\' Contract for \'' + contractDeployInfos[i].name + '\' ...');
             var [proxyContract, receipt] = await deployProxy(contractDeployInfos[i].name, admin);
-            let proxyContractBlockNumber = receipt.blockNumber;
+            var proxyContractBlockNumber = receipt.blockNumber;
             console.log('Deloying \'RayonProxy\' Contract for \'' + contractDeployInfos[i].name + '\' ... Done. ' + proxyContract.options.address);
 
             // Registry.register()
-            receipt = await registryContract.methods.register(proxyContract.options.address, proxyContractBlockNumber).send({ from: admin });
+            var receipt = await registryContract.methods.register(proxyContract.options.address, proxyContractBlockNumber).send({ from: admin });
 
             // deploy logic contract
             console.log('Deloying \'' + contractDeployInfos[i].name + '\' Contract for logic ...');
@@ -165,10 +165,10 @@ const main = async () => {
             console.log('Deloying \'' + contractDeployInfos[i].name + '\' Contract for logic ... Done. ' + logicContract.options.address);
 
             // proxy.setTargetAddress(logic) 
-            receipt = await proxyContract.methods.setTargetAddress(logicContract.options.address).send({ from: admin });
+            var receipt = await proxyContract.methods.setTargetAddress(logicContract.options.address).send({ from: admin });
 
             // Registry.upgrade()
-            receipt = await registryContract.methods.upgrade(logicContract.options.address).send({ from: admin });
+            var receipt = await registryContract.methods.upgrade(logicContract.options.address).send({ from: admin });
 
             // copy buildfile to 'abi' directory
             copyBuildFile(contractDeployInfos[i].name, contractDeployInfos[i].buildFilePath);
