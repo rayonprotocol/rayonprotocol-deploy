@@ -92,7 +92,11 @@ const createContract = async (buildFilePath, contractAddress) => {
 }
 
 const copyBuildFile = (contractName, srcFilePath) => {
-    const dstPath = '../abi/' + contractName + '.json';
+    const abiDir = '../abi';
+    if (!fs.existsSync(abiDir)) {
+        fs.mkdirSync(abiDir);
+    }
+    const dstPath = abiDir + '/' + contractName + '.json';
     fs.copyFileSync(srcFilePath, dstPath);
     console.log('Copy \'' + contractName + '.json\' file to \'' + dstPath + '\'');
 }
