@@ -100,15 +100,15 @@ const copyBuildFile = (contractName, srcFilePath) => {
     console.log('Copy \'' + contractName + '.json\' file to \'' + dstPath + '\'');
 }
 
-const printContractInfoFromRegistry = async (registryContract, admin) => {
+const printContractInfoFromRegistry = async (registryContract, sender) => {
     // print contract info
     console.log('Registry Contract: ' + registryContract.options.address);
-    const contractCount = await registryContract.methods.size().call({ from: admin });
+    const contractCount = await registryContract.methods.size().call({ from: sender });
     console.log('Contracts: ' + contractCount);
     console.log(' | ' + 'Name' + '\t\t\t' + 'ProxyContract' + '\t\t\t\t\t' + 'LogicContract' + '\t\t\t\t\t' + 'Version' + '\t' + 'BlockNumber' + '\t' + 'UpdatedTime');
     console.log(' -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------');
     for (i = 0; i < contractCount; i++) {
-        var contractInfo = await registryContract.methods.getRegistryInfoByIndex(i).call({ from: admin });
+        var contractInfo = await registryContract.methods.getRegistryInfoByIndex(i).call({ from: sender });
         const contractName = contractInfo[0];
         const proxyContractAddress = contractInfo[1];
         const interfaceContractAddress = contractInfo[2];
@@ -146,9 +146,10 @@ if (process.argv.length != 4) {
     process.exit(-1);
 }
 const [web3, web3_eth, gasPrice, gasLimit] = webInstances(networks, process.argv[2]);
-const [address, privateKey] = importFromKeystore(process.argv[3]);
-web3_eth.accounts.wallet.add(privateKey); // private key format : '0x.....'
-// console.log('address: ' + address);
+const [adminAddress, adminPrivateKey] = importFromKeystore(process.argv[3]);
+web3_eth.accounts.wallet.add(adminPrivateKey); // private key format : '0x.....'
+console.log('RayonAdmin is imported: ' + adminAddress);
+console.log('');
 // console.log('privatekey: ' + privateKey);
 
 const main = async () => {

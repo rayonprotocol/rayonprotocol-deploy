@@ -53,7 +53,7 @@ const webInstances = (networks, networkName) => {
     return [web3, web3_eth, gasPrice, gasLimit];
 }
 
-const createContract = async (buildFilePath, contractAddress) => {
+const createContractInstance = async (buildFilePath, contractAddress) => {
     const contractBuildJson = require(buildFilePath);
 
     const contract = new web3_eth.Contract(contractBuildJson.abi);
@@ -79,8 +79,11 @@ if (process.argv.length != 6) {
     process.exit(-1);
 }
 const [web3, web3_eth, gasPrice, gasLimit] = webInstances(networks, process.argv[2]);
-const [address, privateKey] = importFromKeystore(process.argv[3]);
-web3_eth.accounts.wallet.add(privateKey); // private key format : '0x.....'
+const [adminAddress, adminPrivateKey] = importFromKeystore(process.argv[3]);
+web3_eth.accounts.wallet.add(adminPrivateKey); // private key format : '0x.....'
+console.log('RayonAdmin is imported: ' + adminAddress);
+console.log('');
+// console.log('privatekey: ' + privateKey);
 const registryContractAddress = process.argv[4];
 const kycAttesterId = process.argv[5];
 
@@ -89,8 +92,8 @@ const main = async () => {
         const admin = web3_eth.accounts.wallet[0].address;
 
         // create 'Registry' contract
-        var registryContract = await createContract('../abi/Registry.json', registryContractAddress);
-        console.log('Creating \'Registry\' Contract. ' + registryContract.options.address);
+        var registryContract = await createContractInstance('../abi/Registry.json', registryContractAddress);
+        console.log('Creating \'Registry\' Contract Instance. ' + registryContract.options.address);
 
         // create 'KycAttester' contract
         var contractInfo = await registryContract.methods.getRegistryInfo('KycAttester').call({ from: admin });
@@ -101,8 +104,8 @@ const main = async () => {
         const contractBlockNumber = contractInfo[4];
         const contractUpdatedTime = contractInfo[5];
         console.log('Getting \'' + contractName + '\' Contract info... proxy:' + proxyContractAddress + ', logic: ' + interfaceContractAddress + ', version: ' + contractVersion);
-        var kycAttesterContract = await createContract('../abi/KycAttester.json', proxyContractAddress);
-        console.log('Creating \'' + contractName + '\' Contract(Proxy). ' + proxyContractAddress);
+        var kycAttesterContract = await createContractInstance('../abi/' + contractName + '.json', proxyContractAddress);
+        console.log('Creating \'' + contractName + '\' Contract(Proxy) Instance. ' + proxyContractAddress);
         console.log('');
 
         // Add KycAttester
