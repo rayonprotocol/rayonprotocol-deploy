@@ -122,9 +122,9 @@ const printContractInfoFromRegistry = async (registryContract, sender) => {
 
 // Envirionments
 const networks = {
-    local: { url: 'http://localhost:8545', gas: 90000000000, gasPrice: '1' },
-    klaytn: { url: "http://192.168.3.102:8551", gas: 20000000, gasPrice: '25000000000' },
-    ropsten: { url: 'https://ropsten.infura.io/H1k68oRrrO6mYsa4jmnC', gas: 5000000, gasPrice: '10000000000' }
+    local: { url: 'ws://localhost:8545', gas: 90000000000, gasPrice: '1' },
+    klaytn: { url: "ws://192.168.3.102:8552", gas: 20000000, gasPrice: '25000000000' },
+    ropsten: { url: 'ws://ropsten.infura.io/H1k68oRrrO6mYsa4jmnC', gas: 5000000, gasPrice: '10000000000' }
 }
 
 const registryDeployInfo = { name: 'Registry', buildFilePath: '../../rayonprotocol-contract-registry/build/contracts/Registry.json', args: [1] }
@@ -160,6 +160,17 @@ const main = async () => {
         console.log('Deloying \'Registry\' Contract ...');
         var [registryContract, receipt] = await deployContract(registryDeployInfo.buildFilePath, registryDeployInfo.args, admin);
         console.log('Deloying \'Registry\' Contract ... Done. ' + registryContract.options.address);
+
+        // event: Registry.LogContractRegistered
+        registryContract.events.LogContractRegistered({}, function (error, event) {
+            if (error) console.error(error);
+            else console.log('  - Event: Registry.LogContractRegistered, name: ' + event.returnValues.name + ', contractAddress: ' + event.returnValues.contractAddress);
+        });
+        // event: Registry.LogContractUpgraded
+        registryContract.events.LogContractUpgraded({}, function (error, event) {
+            if (error) console.error(error);
+            else console.log('  - Event: Registry.LogContractUpgraded, name: ' + event.returnValues.name + ', contractAddress: ' + event.returnValues.contractAddress + ', interfaceAddress: ' + event.returnValues.interfaceAddress);
+        });
 
         // copy buildfile to 'abi' directory
         copyBuildFile(registryDeployInfo.name, registryDeployInfo.buildFilePath);
@@ -197,7 +208,8 @@ const main = async () => {
         console.log('');
         await printContractInfoFromRegistry(registryContract, admin);
     } catch (exception) {
-        console.log(exception);
+        console.error(exception);
+        process.exit(-1);
     }
 
     // exit

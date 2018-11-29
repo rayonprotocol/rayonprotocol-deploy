@@ -67,9 +67,9 @@ const createContractInstance = async (buildFilePath, contractAddress) => {
 
 // Envirionments
 const networks = {
-    local: { url: 'http://localhost:8545', gas: 90000000000, gasPrice: '1' },
-    klaytn: { url: "http://192.168.3.102:8551", gas: 20000000, gasPrice: '25000000000' },
-    ropsten: { url: 'https://ropsten.infura.io/H1k68oRrrO6mYsa4jmnC', gas: 5000000, gasPrice: '10000000000' }
+    local: { url: 'ws://localhost:8545', gas: 90000000000, gasPrice: '1' },
+    klaytn: { url: "ws://192.168.3.102:8551", gas: 20000000, gasPrice: '25000000000' },
+    ropsten: { url: 'ws://ropsten.infura.io/H1k68oRrrO6mYsa4jmnC', gas: 5000000, gasPrice: '10000000000' }
 }
 
 // Main code
@@ -107,6 +107,12 @@ const main = async () => {
         var kycAttesterContract = await createContractInstance('../abi/' + contractName + '.json', proxyContractAddress);
         console.log('Creating \'' + contractName + '\' Contract(Proxy) Instance. ' + proxyContractAddress);
         console.log('');
+        // event: KycAttester.LogKycAttesterAdded
+        kycAttesterContract.events.LogKycAttesterAdded({}, function (error, event) {
+            if (error) console.error(error);
+            else console.log('  - Event: KycAttester.LogKycAttesterAdded, attesterId: ' + event.returnValues.attesterId);
+        });
+
 
         // Add KycAttester
         console.log('Current KycAttesters: ' + await kycAttesterContract.methods.size().call({ from: admin }));
