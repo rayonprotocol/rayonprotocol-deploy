@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "caver-js": "0.0.1-f",
+    "caver-js": "0.0.1-r",
     "console": "^0.7.2",
     "ethereumjs-wallet": "^0.6.2",
     "fs": "0.0.1-security",
