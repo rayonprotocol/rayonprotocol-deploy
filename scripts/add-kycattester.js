@@ -68,7 +68,7 @@ const createContractInstance = async (buildFilePath, contractAddress) => {
 // Envirionments
 const networks = {
     local: { url: 'ws://localhost:8545', gas: 90000000000, gasPrice: '1' },
-    klaytn: { url: "ws://192.168.3.102:8551", gas: 20000000, gasPrice: '25000000000' },
+    klaytn: { url: "ws://192.168.3.102:8552", gas: 20000000, gasPrice: '25000000000' },
     ropsten: { url: 'ws://ropsten.infura.io/H1k68oRrrO6mYsa4jmnC', gas: 5000000, gasPrice: '10000000000' }
 }
 
