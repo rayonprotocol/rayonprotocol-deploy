@@ -29,7 +29,7 @@ const importFromKeystore = (keystoreFilePath) => {
     }
 }
 
-const webInstances = (networks, networkName) => {
+const web3Instances = (networks, networkName) => {
     switch (networkName) {
         case 'local':
             var web3 = new Web3(networks[networkName].url);
@@ -145,7 +145,7 @@ if (process.argv.length != 4) {
     console.log('Usage: $ node ' + process.argv[1].split('/').reverse()[0] + ' <network> <keystore file>');
     process.exit(-1);
 }
-const [web3, web3_eth, gasPrice, gasLimit] = webInstances(networks, process.argv[2]);
+const [web3, web3_eth, gasPrice, gasLimit] = web3Instances(networks, process.argv[2]);
 const [adminAddress, adminPrivateKey] = importFromKeystore(process.argv[3]);
 web3_eth.accounts.wallet.add(adminPrivateKey); // private key format : '0x.....'
 console.log('RayonAdmin is imported: ' + adminAddress);
