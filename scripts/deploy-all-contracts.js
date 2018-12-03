@@ -79,17 +79,6 @@ const deployProxy = async (contractName, sender) => {
     return await deployContract(proxyDeployInfo.buildFilePath, [contractName], sender);
 }
 
-const createContract = async (buildFilePath, contractAddress) => {
-    const contractBuildJson = require(buildFilePath);
-
-    const contract = new web3_eth.Contract(contractBuildJson.abi);
-    contract.options.gasPrice = gasPrice;
-    contract.options.gas = gasLimit;
-    contract.options.address = contractAddress;
-
-    return contract;
-}
-
 const copyBuildFile = (contractName, srcFilePath) => {
     const abiDir = '../abi';
     if (!fs.existsSync(abiDir)) {
